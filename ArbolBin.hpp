@@ -13,13 +13,10 @@ template<class Elemento>
 class ArbolBin
 {
 protected:
-
     NodoAB<Elemento> *NodoRaiz;
-
-private:
     int peso;
     static NodoAB<Elemento> *copiarNodos(NodoAB<Elemento> *ptrNodo, int &contador);
-    void destruirNodos(NodoAB<Elemento> *ptrNodo);
+    void destruirNodos(NodoAB<Elemento> **ptrNodo);
     void find(NodoAB<Elemento> *actual ,Elemento padre,NodoAB<Elemento> *papa2,NodoAB<Elemento> *abuelo, NodoAB<Elemento> **salida, NodoAB<Elemento> **dad, NodoAB<Elemento> **granddad);
     void anadir(NodoAB<Elemento> *actual, Elemento nuevo);
     void preOrden(NodoAB<Elemento> *actual, list<Elemento> &result);
@@ -222,15 +219,21 @@ void ArbolBin<Elemento>::anadir(NodoAB<Elemento> *actual, Elemento nuevo){
 }
 
 template<class Elemento>
-void ArbolBin<Elemento>::destruirNodos(NodoAB<Elemento> *ptrNodo){
-    delete ptrNodo;
+void ArbolBin<Elemento>::destruirNodos(NodoAB<Elemento> **ptrNodo){
+    delete *ptrNodo;
 }
 
 template<class Elemento>
 void ArbolBin<Elemento>::eliminarSubArbol(Elemento e){
     NodoAB<Elemento> *aux, *padre, *abuelo;
     this->find(NodoRaiz,e,nullptr,nullptr, &aux, &padre, &abuelo);
-    this->destruirNodos(aux);
+    if(padre->getHijoDer() == aux){
+        padre->setPointerHD(nullptr);
+    }
+    if(padre->getHijoIzq() == aux){
+        padre->setPointerHI(nullptr);
+    }
+    this->destruirNodos(&aux);
 }
 
 template<class Elemento>

@@ -12,7 +12,7 @@ private:
     void eliminarNodo(Elemento nuevo, NodoAB<Elemento> *actual);
 public:
     void insertar(Elemento nuevo);
-    void eliminar(Elemento nuevo);
+    void eliminar(Elemento e);
     bool buscar(Elemento e);
     ABB(/* args */);
     ~ABB();
@@ -80,6 +80,46 @@ bool ABB<Elemento>::buscar(Elemento e)
         encontrado = true;
     }
     return encontrado;
+}
+
+template<class Elemento>
+void ABB<Elemento>::eliminar(Elemento e){
+    bool encontrado = false,derecha = true;
+    if(this->NodoRaiz == nullptr){
+        return;
+    }
+    NodoAB<Elemento> *aux = this->NodoRaiz;
+    encontrado = aux->getInfo() == e;
+    while (aux != nullptr && !encontrado)
+    {
+        if(e < aux->getInfo()){
+            encontrado = (aux->getHijoIzq()->getInfo() == e);
+            if(!encontrado){
+                aux = aux->getHijoIzq();
+            }
+            else{
+                derecha = false;
+            }
+        }
+        else{
+            encontrado = (aux->getHijoDer()->getInfo() == e);
+            if(!encontrado){
+                aux = aux->getHijoDer();
+            }
+            else{
+                derecha = true;
+            }
+        }
+    }
+    if(encontrado){
+        if(derecha){
+            delete aux->getHijoDer();
+            aux->setPointerHD(nullptr);
+            return;
+        }
+        delete aux->getHijoIzq();
+        aux->setPointerHI(nullptr);
+    }
 }
 
 #endif

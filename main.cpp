@@ -7,7 +7,7 @@ using namespace std;
 
 int main() 
 {
-    /*ArbolBin<int> padre;
+    ArbolBin<int> padre;
     list<int> postorden,inorden;
     postorden.push_back(4);
     postorden.push_back(5);
@@ -27,10 +27,11 @@ int main()
 
     padre.leerPoI(postorden,inorden); 
     padre.postOrden();
+    padre.eliminarSubArbol(3);
     cout << endl;
-    padre.inOrden();*/
+    padre.inOrden();
 
-    ABB<int> arbol;
+    /*ABB<int> arbol;
     arbol.insertar(15);
     arbol.insertar(16);
     arbol.insertar(20); 
@@ -41,7 +42,7 @@ int main()
     arbol.insertar(23);
     arbol.insertar(10); 
     arbol.insertar(13); 
-    arbol.niveles(); 
-    cout << endl << arbol.buscar(11); 
-    return 0;
+    arbol.eliminar(20);
+    arbol.niveles();*/
+    return 0; 
 }
