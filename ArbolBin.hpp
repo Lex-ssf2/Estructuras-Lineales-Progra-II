@@ -12,8 +12,11 @@ using namespace std;
 template<class Elemento>
 class ArbolBin
 {
-private:
+protected:
+
     NodoAB<Elemento> *NodoRaiz;
+
+private:
     int peso;
     static NodoAB<Elemento> *copiarNodos(NodoAB<Elemento> *ptrNodo, int &contador);
     void destruirNodos(NodoAB<Elemento> *ptrNodo);
@@ -271,6 +274,10 @@ list<Elemento> ArbolBin<Elemento>::niveles(){
     queue<NodoAB<Elemento>*> aux;
     aux.push(NodoRaiz);
     this->niveles(aux,result);
+    typename list<Elemento>::iterator it;
+    for(it = result.begin(); it != result.end();++it){
+        cout << *it << " "; 
+    }
     return result;
 }
 
