@@ -22,9 +22,10 @@ int main()
     padre.insertarNodo(7,10);
     padre.insertarNodo(9,5);
     padre.insertarNodo(9,23);
-    padre.insertarNodo(23,44);
+    padre.insertarNodo(23,44); 
     padre.camino(10,44); 
-    //cout <<  
+    padre.niveles();
+    //cout <<   
     //padre.getHijoDer().getHijoDer();
     return 0;
 }

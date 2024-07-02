@@ -21,7 +21,7 @@ private:
     void preOrden(NodoAB<Elemento> *actual, list<Elemento> &result);
     void inOrden(NodoAB<Elemento> *actual, list<Elemento> &result);
     void postOrden(NodoAB<Elemento> *actual, list<Elemento> &result);
-    void niveles(NodoAB<Elemento> *actual, list<Elemento> &result, queue<Elemento> &cola);
+    void niveles(queue<NodoAB<Elemento>*> actual,list<Elemento> &result);
     void LCA(NodoAB<Elemento> *actual, Elemento origen, Elemento destino, bool *encontrado1, bool *encontrado2, bool &LCAEncontrado, Elemento &ancestro);
     void camino(NodoAB<Elemento> *actual, Elemento origen, Elemento destino, bool *encontrado1, bool *encontrado2, bool &LCAEncontrado, list<Elemento> &salida, list<Elemento> &aux);
 
@@ -43,15 +43,15 @@ public:
     ArbolBin<Elemento> getHijoDer();
 
     void insertarNodo(Elemento padre, Elemento nuevo);
-    void eliminarNodo(Elemento e);
-    int getPeso(); //Falta
+    void eliminarSubArbol(Elemento e);
+    int getPeso();
 
     Elemento LCA(Elemento origen, Elemento destino);
     list<Elemento> camino(Elemento origen, Elemento destino);
     list<Elemento> preOrden();
     list<Elemento> inOrden();
     list<Elemento> postOrden();
-    list<Elemento> niveles(); //Falta
+    list<Elemento> niveles();
 };
 
 template<class Elemento>
@@ -218,7 +218,7 @@ void ArbolBin<Elemento>::destruirNodos(NodoAB<Elemento> *ptrNodo){
 }
 
 template<class Elemento>
-void ArbolBin<Elemento>::eliminarNodo(Elemento e){
+void ArbolBin<Elemento>::eliminarSubArbol(Elemento e){
     NodoAB<Elemento> *aux, *padre, *abuelo;
     this->find(NodoRaiz,e,nullptr,nullptr, &aux, &padre, &abuelo);
     this->destruirNodos(aux);
@@ -262,8 +262,9 @@ list<Elemento> ArbolBin<Elemento>::postOrden(){
 template<class Elemento>
 list<Elemento> ArbolBin<Elemento>::niveles(){
     list<Elemento> result;
-    queue<Elemento> aux;
-    this->niveles(NodoRaiz, result,aux);
+    queue<NodoAB<Elemento>*> aux;
+    aux.push(NodoRaiz);
+    this->niveles(aux,result);
     return result;
 }
 
@@ -297,9 +298,23 @@ void ArbolBin<Elemento>::postOrden(NodoAB<Elemento> *actual, list<Elemento> &res
     result.push_back(actual->getInfo());
 }
 
-template<class Elemento>
-void ArbolBin<Elemento>::niveles(NodoAB<Elemento> *actual, list<Elemento> &result, queue<Elemento> &cola){
+template <typename Elemento>
+void ArbolBin<Elemento>::niveles(queue<NodoAB<Elemento>*> actual,list<Elemento> &result){
 
+    queue<NodoAB<Elemento>*> sigNivel;
+    while (!actual.empty()) {
+        if (actual.front()->getHijoIzq() != nullptr){
+            sigNivel.push(actual.front()->getHijoIzq());
+        }
+        if (actual.front()->getHijoDer() != nullptr){
+            sigNivel.push(actual.front()->getHijoDer());
+        }
+        result.push_back(actual.front()->getInfo());
+        actual.pop();
+    }
+    if(!sigNivel.empty()){
+        this->niveles(sigNivel,result);
+    }
 }
 
 template<class Elemento>
