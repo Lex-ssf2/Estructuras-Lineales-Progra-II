@@ -4,28 +4,31 @@
 
 using namespace std;
 
-void preOrden(ArbolBin<int> Arb){
-    if(!Arb.esNulo()){
-        cout << Arb.getInfo() << " ";
-        preOrden(Arb.getHijoIzq());
-        preOrden(Arb.getHijoDer());
-    }
-}
-
 int main() 
 {
-    ArbolBin<int> padre, aux;
-    padre.setInfo(2); 
-    padre.setHijoDer(7);
-    padre.setHijoIzq(3);
-    padre.insertarNodo(7,9);
-    padre.insertarNodo(7,10);
-    padre.insertarNodo(9,5);
-    padre.insertarNodo(9,23);
-    padre.insertarNodo(23,44); 
-    padre.camino(10,44); 
-    padre.niveles();
-    //cout <<   
+    ArbolBin<int> padre;
+    list<int> postorden,inorden;
+    postorden.push_back(4);
+    postorden.push_back(5);
+    postorden.push_back(2);
+    postorden.push_back(6);
+    postorden.push_back(7);
+    postorden.push_back(3);
+    postorden.push_back(1);
+
+    inorden.push_back(4);
+    inorden.push_back(2);
+    inorden.push_back(5);
+    inorden.push_back(1);
+    inorden.push_back(6);
+    inorden.push_back(3);
+    inorden.push_back(7);
+
+    padre.leerPoI(postorden,inorden); 
+    padre.postOrden();
+    cout << endl;
+    padre.inOrden();
+    //cout <<    
     //padre.getHijoDer().getHijoDer();
     return 0;
 }

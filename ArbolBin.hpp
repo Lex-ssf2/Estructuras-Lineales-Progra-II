@@ -5,6 +5,7 @@
 #include <iostream>
 #include <list>
 #include <queue>
+#include <algorithm>
 
 using namespace std;
 
@@ -24,6 +25,8 @@ private:
     void niveles(queue<NodoAB<Elemento>*> actual,list<Elemento> &result);
     void LCA(NodoAB<Elemento> *actual, Elemento origen, Elemento destino, bool *encontrado1, bool *encontrado2, bool &LCAEncontrado, Elemento &ancestro);
     void camino(NodoAB<Elemento> *actual, Elemento origen, Elemento destino, bool *encontrado1, bool *encontrado2, bool &LCAEncontrado, list<Elemento> &salida, list<Elemento> &aux);
+    NodoAB<Elemento> *leerPreIn(list<Elemento> preorden, list<Elemento> inorden);
+    NodoAB<Elemento> *leerPosIn(list<Elemento> postorden, list<Elemento> inorden);
 
 public:
     ArbolBin();
@@ -45,6 +48,9 @@ public:
     void insertarNodo(Elemento padre, Elemento nuevo);
     void eliminarSubArbol(Elemento e);
     int getPeso();
+
+    void leerPI(list<Elemento> preorden, list<Elemento> inorden);
+    void leerPoI(list<Elemento> postorden, list<Elemento> inorden);
 
     Elemento LCA(Elemento origen, Elemento destino);
     list<Elemento> camino(Elemento origen, Elemento destino);
@@ -283,9 +289,9 @@ void ArbolBin<Elemento>::inOrden(NodoAB<Elemento> *actual, list<Elemento> &resul
     if(actual == nullptr){
         return;
     }
-    preOrden(actual->getHijoIzq(),result);
+    inOrden(actual->getHijoIzq(),result);
     result.push_back(actual->getInfo());
-    preOrden(actual->getHijoDer(),result);
+    inOrden(actual->getHijoDer(),result);
 }
 
 template<class Elemento>
@@ -293,8 +299,8 @@ void ArbolBin<Elemento>::postOrden(NodoAB<Elemento> *actual, list<Elemento> &res
     if(actual == nullptr){
         return;
     }
-    preOrden(actual->getHijoIzq(),result);
-    preOrden(actual->getHijoDer(),result);
+    postOrden(actual->getHijoIzq(),result);
+    postOrden(actual->getHijoDer(),result);
     result.push_back(actual->getInfo());
 }
 
@@ -400,6 +406,92 @@ list<Elemento> ArbolBin<Elemento>::camino(Elemento origen, Elemento destino){
         cout << *it << " "; 
     }
     return aux;
+}
+
+template <typename Elemento>
+NodoAB<Elemento> * ArbolBin<Elemento>::leerPreIn(list<Elemento> preorden, list<Elemento> inorden){
+    
+    NodoAB<Elemento> *r;
+    list<Elemento> preIzq, preDer, inIzq, inDer;
+
+    if(!preorden.empty()){
+        r = new (NodoAB<Elemento>);
+        r->setInfo(preorden.front());
+        preorden.pop_front();
+        while(inorden.front() != r->getInfo()){
+            inIzq.push_back(inorden.front());
+            preIzq.push_back(preorden.front());
+
+            inorden.pop_front();
+            preorden.pop_front();
+        }
+        inorden.pop_front();
+
+        while(!inorden.empty()){
+            preDer.push_back(preorden.front());
+            inDer.push_back(inorden.front());
+
+            preorden.pop_front();
+            inorden.pop_front();
+        }
+
+        r->setPointerHI(leerPreIn(preIzq, inIzq));
+        r->setPointerHD(leerPreIn(preDer, inDer));
+        return r;
+
+    }else{
+        return nullptr;
+    }
+
+}
+
+template <typename Elemento>
+NodoAB<Elemento> * ArbolBin<Elemento>::leerPosIn(list<Elemento> postorden, list<Elemento> inorden){
+    
+    NodoAB<Elemento> *r;
+    list<Elemento> postIzq, postDer, inIzq, inDer;
+
+    if(!postorden.empty()){
+        r = new (NodoAB<Elemento>);
+        r->setInfo(postorden.back());
+        postorden.pop_back();
+
+        while(inorden.front() != r->getInfo()){
+            inIzq.push_back(inorden.front());
+            postIzq.push_back(postorden.front());
+
+            inorden.pop_front();
+            postorden.pop_front();
+        }
+        inorden.pop_front();
+
+        while(!inorden.empty()){
+            postDer.push_back(postorden.front());
+            inDer.push_back(inorden.front());
+
+            postorden.pop_front();
+            inorden.pop_front();
+        }
+
+        r->setPointerHI(leerPosIn(postIzq, inIzq));
+        r->setPointerHD(leerPosIn(postDer, inDer));
+
+        return r;
+
+    }else{
+        return nullptr;
+    }
+
+}
+
+template <typename Elemento>
+void ArbolBin<Elemento>::leerPI(list<Elemento> preorden, list<Elemento> inorden){
+    NodoRaiz = this->leerPreIn(preorden,inorden);
+}
+
+template <typename Elemento>
+void ArbolBin<Elemento>::leerPoI(list<Elemento> postorden, list<Elemento> inorden){
+    NodoRaiz = this->leerPosIn(postorden,inorden);
 }
 
 #endif
