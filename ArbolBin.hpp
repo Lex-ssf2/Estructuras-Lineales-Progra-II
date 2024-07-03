@@ -28,6 +28,7 @@ protected:
     NodoAB<Elemento> *leerPreIn(list<Elemento> preorden, list<Elemento> inorden);
     NodoAB<Elemento> *leerPosIn(list<Elemento> postorden, list<Elemento> inorden);
     void diametro(NodoAB<Elemento> *actual, int &diametroP, int *altura, NodoAB<Elemento> **lejano, NodoAB<Elemento> **cercano);
+    void enlaces(NodoAB<Elemento> *actual, int altura, list<Elemento> &result, int maxAltura);
 
 public:
     ArbolBin();
@@ -53,6 +54,8 @@ public:
 
     void leerPI(list<Elemento> preorden, list<Elemento> inorden);
     void leerPoI(list<Elemento> postorden, list<Elemento> inorden);
+    
+    list<Elemento> enlacesConKLongitud(int k);
 
     Elemento LCA(Elemento origen, Elemento destino);
     list<Elemento> camino(Elemento origen, Elemento destino);
@@ -243,9 +246,9 @@ list<Elemento> ArbolBin<Elemento>::preOrden(){
     list<Elemento> result;
     this->preOrden(NodoRaiz, result);
     typename list<Elemento>::iterator it;
-    for(it = result.begin(); it != result.end();++it){
+    /*for(it = result.begin(); it != result.end();++it){
         cout << *it << " "; 
-    }
+    }*/
     return result;
 }
 
@@ -255,9 +258,9 @@ list<Elemento> ArbolBin<Elemento>::inOrden(){
     this->inOrden(NodoRaiz, result);
 
     typename list<Elemento>::iterator it;
-    for(it = result.begin(); it != result.end();++it){
+    /*for(it = result.begin(); it != result.end();++it){
         cout << *it << " "; 
-    }
+    }*/
     return result;
 }
 
@@ -267,9 +270,9 @@ list<Elemento> ArbolBin<Elemento>::postOrden(){
     this->postOrden(NodoRaiz, result);
 
     typename list<Elemento>::iterator it;
-    for(it = result.begin(); it != result.end();++it){
+    /*for(it = result.begin(); it != result.end();++it){
         cout << *it << " "; 
-    }
+    }*/
     return result;
 }
 
@@ -279,10 +282,10 @@ list<Elemento> ArbolBin<Elemento>::niveles(){
     queue<NodoAB<Elemento>*> aux;
     aux.push(NodoRaiz);
     this->niveles(aux,result);
-    typename list<Elemento>::iterator it;
+    /*typename list<Elemento>::iterator it;
     for(it = result.begin(); it != result.end();++it){
         cout << *it << " "; 
-    }
+    }*/
     return result;
 }
 
@@ -396,12 +399,7 @@ void ArbolBin<Elemento>::camino(NodoAB<Elemento> *actual, Elemento origen, Eleme
 
         if(LCAEncontrado){
             salida.push_back(actual->getInfo());
-            salida.splice(salida.end(),aux);
-            for (auto v: salida)
-            {
-                cout << v << endl;
-            }
-            
+            salida.splice(salida.end(),aux);    
         }
     }
 }
@@ -413,11 +411,7 @@ list<Elemento> ArbolBin<Elemento>::camino(Elemento origen, Elemento destino){
 
     e1 = e2 = LCAEncontrado = false;
     this->camino(NodoRaiz,origen,destino,&e1,&e2,LCAEncontrado,camino,aux);
-    typename list<Elemento>::iterator it;
-    for(it = aux.begin(); it != aux.end();++it){
-        cout << *it << " "; 
-    }
-    return aux;
+    return camino;
 }
 
 template <typename Elemento>
@@ -425,36 +419,31 @@ NodoAB<Elemento> * ArbolBin<Elemento>::leerPreIn(list<Elemento> preorden, list<E
     
     NodoAB<Elemento> *r;
     list<Elemento> preIzq, preDer, inIzq, inDer;
+    if(preorden.empty() || inorden.empty()){
+       return nullptr;
+	}
+	r = new (NodoAB<Elemento>);
+	r->setInfo(preorden.front());
+	preorden.pop_front();
+	while(inorden.front() != r->getInfo()){
+		inIzq.push_back(inorden.front());
+		preIzq.push_back(preorden.front());
 
-    if(!preorden.empty()){
-        r = new (NodoAB<Elemento>);
-        r->setInfo(preorden.front());
-        preorden.pop_front();
-        while(inorden.front() != r->getInfo()){
-            inIzq.push_back(inorden.front());
-            preIzq.push_back(preorden.front());
+		inorden.pop_front();
+		preorden.pop_front();
+	}
+	inorden.pop_front();
 
-            inorden.pop_front();
-            preorden.pop_front();
-        }
-        inorden.pop_front();
+	while(!inorden.empty()){
+		preDer.push_back(preorden.front());
+		inDer.push_back(inorden.front());
 
-        while(!inorden.empty()){
-            preDer.push_back(preorden.front());
-            inDer.push_back(inorden.front());
-
-            preorden.pop_front();
-            inorden.pop_front();
-        }
-
-        r->setPointerHI(leerPreIn(preIzq, inIzq));
-        r->setPointerHD(leerPreIn(preDer, inDer));
-        return r;
-
-    }else{
-        return nullptr;
-    }
-
+		preorden.pop_front();
+		inorden.pop_front();
+	}
+	r->setPointerHI(leerPreIn(preIzq, inIzq));
+	r->setPointerHD(leerPreIn(preDer, inDer));
+	return r;
 }
 
 template <typename Elemento>
@@ -468,7 +457,7 @@ NodoAB<Elemento> * ArbolBin<Elemento>::leerPosIn(list<Elemento> postorden, list<
         r->setInfo(postorden.back());
         postorden.pop_back();
 
-        while(inorden.front() != r->getInfo()){
+        while(!inorden.empty() && inorden.front() != r->getInfo()){
             inIzq.push_back(inorden.front());
             postIzq.push_back(postorden.front());
 
@@ -484,7 +473,7 @@ NodoAB<Elemento> * ArbolBin<Elemento>::leerPosIn(list<Elemento> postorden, list<
             postorden.pop_front();
             inorden.pop_front();
         }
-
+        
         r->setPointerHI(leerPosIn(postIzq, inIzq));
         r->setPointerHD(leerPosIn(postDer, inDer));
 
@@ -498,12 +487,12 @@ NodoAB<Elemento> * ArbolBin<Elemento>::leerPosIn(list<Elemento> postorden, list<
 
 template <class Elemento>
 void ArbolBin<Elemento>::leerPI(list<Elemento> preorden, list<Elemento> inorden){
-    NodoRaiz = this->leerPreIn(preorden,inorden);
+    this->NodoRaiz = this->leerPreIn(preorden,inorden);
 }
 
 template <class Elemento>
 void ArbolBin<Elemento>::leerPoI(list<Elemento> postorden, list<Elemento> inorden){
-    NodoRaiz = this->leerPosIn(postorden,inorden);
+    this->NodoRaiz = this->leerPosIn(postorden,inorden);
 }
 
 template <class Elemento>

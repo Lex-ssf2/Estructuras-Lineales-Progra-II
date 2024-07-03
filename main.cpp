@@ -3,62 +3,131 @@
 #include "ABB.hpp"
 #include "ArbolN.hpp"
 #include <list>
+#include <string>
+#include <sstream>
 
 using namespace std;
 
+
+template <class Elemento>
+void ArbolBin<Elemento>::enlaces(NodoAB<Elemento> *actual, int altura, list<Elemento> &result, int maxAltura){
+	int HI,HD;
+	HI = altura + 1;
+	HD = altura + 1;
+    if(actual == nullptr || altura > maxAltura){
+        return;
+    }
+    if(altura == maxAltura && actual->getHijoIzq() == nullptr && actual->getHijoDer() == nullptr){
+		result.push_back(actual->getInfo());
+		return;
+	}
+    enlaces(actual->getHijoIzq(),HI,result,maxAltura);
+    enlaces(actual->getHijoDer(),HD,result,maxAltura);
+}
+
+template<class Elemento>
+list<Elemento> ArbolBin<Elemento>::enlacesConKLongitud(int k){
+	list<Elemento> salida;
+	int alturaTMP = 0;
+	this->enlaces(this->NodoRaiz,alturaTMP,salida,k);
+	return salida;
+}
+
+void imprimirRes(list<string> res);
+void insertarLista(list<string> &orden,list<string> &inorden,list<string> &postOrden, string tmp);
+void lecturaArbol();
+
 int main() 
 {
-    ArbolBin<int> padre;
-    list<int> postorden,inorden;
-    postorden.push_back(4);
-    postorden.push_back(5);
-    postorden.push_back(2);
-    postorden.push_back(6);
-    postorden.push_back(7);
-    postorden.push_back(3);
-    postorden.push_back(1);
+    int numCasos;
+    int i = 0;
+    cin >> numCasos;
+    while(i < numCasos){
+		lecturaArbol();
+		++i;
+		if(i != numCasos){
+			cout << "\n";
+		}
+	}
+    return 0;
+}
 
-    inorden.push_back(4);
-    inorden.push_back(2);
-    inorden.push_back(5);
-    inorden.push_back(1);
-    inorden.push_back(6);
-    inorden.push_back(3);
-    inorden.push_back(7);
+void insertarLista(list<string> &orden,list<string> &inorden,list<string> &postOrden, string tmp){
+	
+	char aux = '\0';
+	string line,test;
+	while(aux != '\n' && aux != -1){
+		aux = cin.get();
+		if(aux != ' ' && aux != ']' && aux != ',' && aux != '='){
+			if(aux == '['){
+				getline(cin,line,']');
+				stringstream s(line);
+				while (getline(s,test,','))
+				{
+					while(test.front() == 32 || test.front() < 0){
+						test.erase(test.begin());
+					}
+					if(tmp == "PREORDEN"){
+						orden.push_back(test);
+					}else if(tmp == "INORDEN"){
+						inorden.push_back(test);
+					}else{
+						postOrden.push_back(test);
+					};
+				}
+			}
+		}
+	}
+}
 
-    padre.leerPoI(postorden,inorden); 
-    cout << padre.getDiametro();
+void imprimirRes(list<string> res){
+	cout << "[";
+	for(auto e: res){
+		cout << e;
+		if(e != res.back())
+			cout << ", ";
+	}
+	cout << "]\n";
+}
 
-
-    /*ABB<int> arbol;
-    arbol.insertar(15);
-    arbol.insertar(16);
-    arbol.insertar(20); 
-    arbol.insertar(5);
-    arbol.insertar(12);
-    arbol.insertar(18);
-    arbol.insertar(3);
-    arbol.insertar(23);
-    arbol.insertar(10); 
-    arbol.insertar(13); 
-    arbol.eliminar(20);
-    arbol.niveles();*/
-
-    /*ArbolN<int> test, papa;
-    test.setInfo(2);
-    test.insertarNodo(2,1);
-    test.insertarNodo(1,3);
-    test.insertarNodo(2,111);
-    test.insertarNodo(111,333);
-    test.insertarNodo(111,555);
-    test.insertarNodo(555,1111);
-    test.insertarNodo(555,2222);
-    test.insertarNodo(111,666);
-    test.insertarNodo(111,777);
-    test.insertarNodo(2,5);
-    test.insertarNodo(5,7);
-    test.insertarNodo(5,14);
-    test.insertarNodo(14,32);
-    cout << test.LCA(666,1111);*/
-    return 0; 
+void lecturaArbol(){
+	ArbolBin<string> arbol;
+	list<string> orden,inorden,postOrden,res,resAux;
+	string tmp;
+	int j = 0;
+	bool preorden;
+	int numRamas;
+	cin >> numRamas;
+	while(j < 2){
+		cin >> tmp;
+		preorden = (tmp == "PREORDEN" || preorden);
+		insertarLista(orden,inorden,postOrden,tmp);
+		++j;
+	}
+	//Saber si usar el preORden e Inorden o postOrden e Inorden
+	if(preorden){
+		arbol.leerPI(orden,inorden);
+		preorden = false;
+	}
+	else{
+		arbol.leerPoI(postOrden,inorden);
+	}
+	/*for(auto e: arbol.postOrden()){
+		cout << e;
+		if(e != res.back())
+			cout << ", ";
+	}
+	cout << endl;*/
+	res = arbol.enlacesConKLongitud(numRamas);
+	if(res.empty()){
+			cout << "None\n";
+	}
+	while(!res.empty()){
+		resAux = arbol.camino(arbol.getInfo(),res.front());
+		res.pop_front();
+		imprimirRes(resAux);
+	}
+	orden.clear();
+	inorden.clear();
+	postOrden.clear();
 }
