@@ -20,6 +20,10 @@ class NodoAN
 
         NodoAN *getHijoIzq();
         NodoAN *getHermanoDer();
+
+        void setPointerHI(NodoAN<Elemento> * e);
+        void setPointerHD(NodoAN<Elemento> * e);
+
         void setHijoIzq(Elemento e);
         void setHermanoDer(Elemento e);
 };
@@ -80,5 +84,15 @@ void NodoAN<Elemento>::setHermanoDer(Elemento e){
     }
     this->hermanoDer->setInfo(e);
 }
+
+template<class Elemento>
+void NodoAN<Elemento>::setPointerHI(NodoAN<Elemento> * e){
+    this->hijoIzq = e;
+};
+
+template<class Elemento>
+void NodoAN<Elemento>::setPointerHD(NodoAN<Elemento> * e){
+    this->hermanoDer = e;
+};
 
 #endif

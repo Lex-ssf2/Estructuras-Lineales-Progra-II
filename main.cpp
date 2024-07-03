@@ -1,13 +1,14 @@
 #include <iostream>
 #include "ArbolBin.hpp"
 #include "ABB.hpp"
+#include "ArbolN.hpp"
 #include <list>
 
 using namespace std;
 
 int main() 
 {
-    ArbolBin<int> padre;
+    /*ArbolBin<int> padre;
     list<int> postorden,inorden;
     postorden.push_back(4);
     postorden.push_back(5);
@@ -29,7 +30,8 @@ int main()
     padre.postOrden();
     padre.eliminarSubArbol(3);
     cout << endl;
-    padre.inOrden();
+    padre.inOrden();*/
+
 
     /*ABB<int> arbol;
     arbol.insertar(15);
@@ -44,5 +46,14 @@ int main()
     arbol.insertar(13); 
     arbol.eliminar(20);
     arbol.niveles();*/
+
+    ArbolN<int> test, papa;
+    test.setInfo(2);
+    test.insertarNodo(2,1);
+    test.insertarNodo(2,5);
+    test.insertarNodo(5,7);
+    test.insertarNodo(5,14);
+    test.getHijos();
+
     return 0; 
 }
