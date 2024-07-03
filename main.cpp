@@ -50,10 +50,18 @@ int main()
     ArbolN<int> test, papa;
     test.setInfo(2);
     test.insertarNodo(2,1);
+    test.insertarNodo(1,3);
+    test.insertarNodo(2,111);
+    test.insertarNodo(111,333);
+    test.insertarNodo(111,555);
+    test.insertarNodo(555,1111);
+    test.insertarNodo(555,2222);
+    test.insertarNodo(111,666);
+    test.insertarNodo(111,777);
     test.insertarNodo(2,5);
     test.insertarNodo(5,7);
     test.insertarNodo(5,14);
-    test.getHijos();
-
+    test.insertarNodo(14,32);
+    cout << test.LCA(666,1111);
     return 0; 
 }

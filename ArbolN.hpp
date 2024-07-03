@@ -21,7 +21,9 @@ protected:
     void inOrden(NodoAN<Elemento> *actual, list<Elemento> &result);
     void postOrden(NodoAN<Elemento> *actual, list<Elemento> &result);
     void niveles(queue<NodoAN<Elemento>*> actual,list<Elemento> &result);
-    void LCA(NodoAB<Elemento> *actual, Elemento origen, Elemento destino, bool *encontrado1, bool *encontrado2, bool &LCAEncontrado, Elemento &ancestro);
+    void LCA(NodoAN<Elemento> *actual, Elemento origen, Elemento destino, int &contadorEncontrado, int *contTemp, bool &LCAEncontrado, Elemento &ancestro);
+    void camino(NodoAN<Elemento> *actual, Elemento origen, Elemento destino, int &contadorEncontrado, int *contTemp, bool &LCAEncontrado, list<Elemento> &salida, list<Elemento> &aux);
+
     ArbolN<Elemento> nodoToArbol(NodoAN<Elemento> *nodo);
 
 public:
@@ -47,6 +49,7 @@ public:
     list<Elemento> postOrden();
     list<Elemento> niveles();
     Elemento LCA(Elemento origen, Elemento destino);
+    list<Elemento> camino(Elemento origen, Elemento destino);
 
     ArbolN<Elemento>& operator=(const ArbolN<Elemento> &a);
 };
@@ -337,6 +340,100 @@ ArbolN<Elemento> ArbolN<Elemento>::getHijoIzq(){
 template<class Elemento>
 ArbolN<Elemento> ArbolN<Elemento>::getHermanoDerecho(){
     return nodoToArbol(copiarNodos(NodoRaiz->getHermanoDer()));
+}
+
+template<class Elemento>
+void ArbolN<Elemento>::LCA(NodoAN<Elemento> *actual, Elemento origen, Elemento destino, int &contadorEncontrado, int *contTemp, bool &LCAEncontrado, Elemento &ancestro){
+    int encontrados = 0;
+    int totalTmp = 0;
+    NodoAN<Elemento> *auxN;
+    if(actual == nullptr){
+        return;
+    }
+    auxN = actual->getHijoIzq();
+    while (auxN != nullptr)
+    {
+        encontrados = 0;
+        this->LCA(auxN,origen,destino, contadorEncontrado,&encontrados,LCAEncontrado,ancestro);
+        totalTmp = totalTmp + encontrados;
+        *contTemp = encontrados;
+        auxN = auxN->getHermanoDer();
+    }
+    if(totalTmp == 2 && !LCAEncontrado){
+        ancestro = actual->getInfo();
+        LCAEncontrado = true;
+    }
+    *contTemp = totalTmp;
+    if(actual->getInfo() == origen || actual->getInfo() == destino){
+        ++contadorEncontrado;
+        ++(*contTemp);
+    }
+}
+
+template<class Elemento>
+Elemento ArbolN<Elemento>::LCA(Elemento origen, Elemento destino){
+    bool LCAEncontrado;
+    int total = 0, cont = 0;
+    Elemento ancestro;
+
+    LCAEncontrado = false;
+    this->LCA(NodoRaiz,origen,destino,total,&cont,LCAEncontrado,ancestro);
+    return ancestro;
+}
+
+template<class Elemento>
+void ArbolN<Elemento>::camino(NodoAN<Elemento> *actual, Elemento origen, Elemento destino, int &contadorEncontrado, int *contTemp, bool &LCAEncontrado, list<Elemento> &salida, list<Elemento> &aux){
+    int encontrados = 0;
+    int totalTmp = 0;
+    NodoAN<Elemento> *auxN;
+    if(actual == nullptr){
+        return;
+    }
+
+    auxN = actual->getHijoIzq();
+    while (auxN != nullptr)
+    {
+        encontrados = 0;
+        this->camino(auxN,origen,destino, contadorEncontrado,&encontrados,LCAEncontrado,salida,aux);
+        totalTmp = totalTmp + encontrados;
+        *contTemp = encontrados;
+        auxN = auxN->getHermanoDer();
+    }
+    if(totalTmp == 1){
+        if(contadorEncontrado == 2){
+            aux.push_front(actual->getInfo());
+        }else{
+            salida.push_back(actual->getInfo());
+        }
+    }else if(totalTmp == 2 && !LCAEncontrado){
+        salida.push_back(actual->getInfo());
+        salida.splice(salida.end(),aux);
+        for (auto v: salida)
+        {
+            cout << v << endl;
+        }
+        LCAEncontrado = true;
+    }
+    *contTemp = totalTmp;
+    if(actual->getInfo() == origen || actual->getInfo() == destino){
+        ++contadorEncontrado;
+        ++(*contTemp);
+        if(contadorEncontrado == 2){
+            aux.push_front(actual->getInfo());
+        }else{
+            salida.push_back(actual->getInfo());
+        }
+    }
+}
+
+template<class Elemento>
+list<Elemento> ArbolN<Elemento>::camino(Elemento origen, Elemento destino){
+    bool LCAEncontrado;
+    int total = 0, cont = 0;
+    list<Elemento> camino,aux;
+    LCAEncontrado = false;
+    this->camino(NodoRaiz,origen,destino,total,&cont,LCAEncontrado,camino,aux);
+    return camino;
 }
 
 template <class Elemento>
