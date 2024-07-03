@@ -27,6 +27,7 @@ protected:
     void camino(NodoAB<Elemento> *actual, Elemento origen, Elemento destino, bool *encontrado1, bool *encontrado2, bool &LCAEncontrado, list<Elemento> &salida, list<Elemento> &aux);
     NodoAB<Elemento> *leerPreIn(list<Elemento> preorden, list<Elemento> inorden);
     NodoAB<Elemento> *leerPosIn(list<Elemento> postorden, list<Elemento> inorden);
+    void diametro(NodoAB<Elemento> *actual, int &diametroP, int *altura, NodoAB<Elemento> **lejano, NodoAB<Elemento> **cercano);
 
 public:
     ArbolBin();
@@ -48,6 +49,7 @@ public:
     void insertarNodo(Elemento padre, Elemento nuevo);
     void eliminarSubArbol(Elemento e);
     int getPeso();
+    int getDiametro();
 
     void leerPI(list<Elemento> preorden, list<Elemento> inorden);
     void leerPoI(list<Elemento> postorden, list<Elemento> inorden);
@@ -494,14 +496,53 @@ NodoAB<Elemento> * ArbolBin<Elemento>::leerPosIn(list<Elemento> postorden, list<
 
 }
 
-template <typename Elemento>
+template <class Elemento>
 void ArbolBin<Elemento>::leerPI(list<Elemento> preorden, list<Elemento> inorden){
     NodoRaiz = this->leerPreIn(preorden,inorden);
 }
 
-template <typename Elemento>
+template <class Elemento>
 void ArbolBin<Elemento>::leerPoI(list<Elemento> postorden, list<Elemento> inorden){
     NodoRaiz = this->leerPosIn(postorden,inorden);
+}
+
+template <class Elemento>
+void ArbolBin<Elemento>::diametro(NodoAB<Elemento> *actual, int &diametroP, int *altura, NodoAB<Elemento> **lejano, NodoAB<Elemento> **cercano){
+    int alturaHD, alturaHI;
+    NodoAB<Elemento> *aux,*lejanoHI,*lejanoHD,*cercanoHI,*cercanoHD;
+
+    if(actual == nullptr){
+        *altura = 0;
+        return;
+    }
+
+    diametro(actual->getHijoIzq(),diametroP,&alturaHI,&lejanoHI,&cercanoHI);
+    diametro(actual->getHijoDer(),diametroP,&alturaHD,&lejanoHD,&cercanoHD);
+
+    int max_diameter = alturaHD + alturaHI + 1;
+    if(max_diameter == 1){
+        *lejano = actual;
+        *cercano = actual;
+    }
+
+    diametroP = max(diametroP,max_diameter);
+    if(alturaHI > alturaHD){
+        *altura = alturaHI + 1;
+        *lejano = lejanoHI;
+        *cercano = lejanoHD;
+    }else{
+        *altura = alturaHD + 1;
+        *lejano = lejanoHD;
+        *cercano = lejanoHI;
+    }
+}
+
+template <class Elemento>
+int ArbolBin<Elemento>::getDiametro(){
+    int res = 0,altura = 0;
+    NodoAB<Elemento> *cercano,*lejano;
+    this->diametro(this->NodoRaiz,res,&altura,&lejano,&cercano);
+    return res;
 }
 
 #endif

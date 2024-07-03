@@ -8,7 +8,7 @@ using namespace std;
 
 int main() 
 {
-    /*ArbolBin<int> padre;
+    ArbolBin<int> padre;
     list<int> postorden,inorden;
     postorden.push_back(4);
     postorden.push_back(5);
@@ -27,10 +27,7 @@ int main()
     inorden.push_back(7);
 
     padre.leerPoI(postorden,inorden); 
-    padre.postOrden();
-    padre.eliminarSubArbol(3);
-    cout << endl;
-    padre.inOrden();*/
+    cout << padre.getDiametro();
 
 
     /*ABB<int> arbol;
@@ -47,7 +44,7 @@ int main()
     arbol.eliminar(20);
     arbol.niveles();*/
 
-    ArbolN<int> test, papa;
+    /*ArbolN<int> test, papa;
     test.setInfo(2);
     test.insertarNodo(2,1);
     test.insertarNodo(1,3);
@@ -62,6 +59,6 @@ int main()
     test.insertarNodo(5,7);
     test.insertarNodo(5,14);
     test.insertarNodo(14,32);
-    cout << test.LCA(666,1111);
+    cout << test.LCA(666,1111);*/
     return 0; 
 }
