@@ -10,30 +10,17 @@ using namespace std;
 int main() 
 {
     GrafoD<string> test;
-    vector<string> holaa;
-    test.agregarVertice("hola");
-    test.agregarVertice("SonGoku");
-    test.agregarVertice("hola");
-    test.agregarVertice("SonGoku");
-    test.agregarVertice("queque a");
-    test.agregarArco("SonGoku","hola",7);
-    test.setPesoArco("SonGoku","hola",12);
-    cout << test.existeVertice("hola") << " " << test.existeVertice("SonGoku") << " " << test.existeVertice("xd") << " " << test.getNVertices() << " " << test.existeArco("hola","SonGoku")
-    << " " << test.getTotalArcos() << " " << test.getNArcos("hola") << " " << test.getNArcos("hell yeah") << " " << test.getPesoArco("hola","SonGoku") << " " << test.getPesoArco("hola","xd") 
-    << " " << test.getPesoArco("damn","xd");
-    test.getVecinos("hola");
-    cout << endl;
-    test.agregarVertice("oh yeah");
-    test.agregarArco("oh yeah","hola");
-    test.agregarArco("queque a","hola");
-    test.agregarArco("queque a","SonGoku");
-    test.agregarArco("queque a","oh yeah"); 
-    cout << test.getNArcos("hola") << " " << test.getTotalArcos() << " " << test.getNArcos("SonGoku") << " " << test.getNArcos("oh yeah") << " " << test.getNVertices() << " " << test.getNArcos("queque a") <<  endl;
-    for(auto xd: test.getSucesores("queque a")){
-        cout << xd << " "; 
-    }
-    cout << endl << endl;
-    test.eliminarVertice("queque a");
-    cout << test.getNArcos("hola") << " " << test.getTotalArcos() << " " << test.getNArcos("SonGoku") << " " << test.getNArcos("oh yeah") << " " << test.getNVertices() << " " << test.getNArcos("queque a") << endl;
+    test.agregarVertice("Paso 1");
+    test.agregarVertice("Paso 2");
+    test.agregarVertice("Paso 3");
+    test.agregarVertice("Paso 4");
+    test.agregarVertice("Paso 5");
+    test.agregarArco("Paso 1","Paso 3");
+    test.agregarArco("Paso 1","Paso 2");
+    test.agregarArco("Paso 2","Paso 3");
+    test.agregarArco("Paso 3","Paso 5");
+    test.agregarArco("Paso 3","Paso 4");
+    test.agregarArco("Paso 4","Paso 1");
+    test.DFS("Paso 1");
     return 0;
 }

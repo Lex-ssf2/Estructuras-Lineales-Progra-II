@@ -5,6 +5,7 @@
 #include "NodoAdy.hpp"
 #include <list>
 #include <vector>
+#include <queue>
 
 using namespace std;
 
@@ -21,6 +22,8 @@ protected:
   void getVertices(list<Elemento> lista, list<NodoVertice<Elemento>*> salida);
   Grafo<int> setMapeo(vector<Elemento> *mapeo);
   int desMap(vector<Elemento> mapeo, Elemento e);
+  void DFS(Grafo<int> g, int fuente, list<int> &recorrido, vector<bool> &visitados);
+  void BFS(Grafo<int> g, int fuente, list<int> &recorrido);
 
 public:
   Grafo();
@@ -46,6 +49,8 @@ public:
   int getTotalArcos();
 
   list<Elemento> getVecinos(Elemento v);
+  list<Elemento> DFS(Elemento v);
+  list<Elemento> BFS(Elemento v);
 };
 
 template<typename Elemento>
@@ -467,5 +472,99 @@ int Grafo<Elemento>::desMap(vector<Elemento> mapeo, Elemento e){
     }
   }
   return -1;
+}
+
+template<typename Elemento>
+void Grafo<Elemento>::DFS(Grafo<int> g, int fuente, list<int> &recorrido, vector<bool> &visitados){
+  list<int> sucesores;
+  int w;
+  sucesores = g.getVecinos(fuente);
+  while(!sucesores.empty()){
+    w = sucesores.front();
+    if(!visitados.at(w)){
+      visitados[w] = true;
+      recorrido.push_back(w);
+      this->DFS(g,w,recorrido,visitados);
+    }
+    sucesores.pop_front();
+  }
+}
+
+template<typename Elemento>
+list<Elemento> Grafo<Elemento>::DFS(Elemento v){
+  vector<Elemento> map;
+  vector<bool> visitados;
+  list<int> recorrido;
+  list<Elemento> recorridoMap;
+  Grafo<int> mapeo = this->setMapeo(&map);
+  int fuente = this->desMap(map,v);
+
+  visitados.resize(map.size(),false);
+
+  recorrido.push_back(fuente);
+  visitados[fuente] = true;
+  this->DFS(mapeo,fuente,recorrido,visitados);
+  while (!recorrido.empty())
+  {
+    recorridoMap.push_back(map[recorrido.front()]);
+    recorrido.pop_front();
+  }
+
+  for(auto xd: recorridoMap){
+    cout << xd << " ";
+  }
+  cout << endl;
+  return recorridoMap;
+  
+}
+
+template<typename Elemento>
+void Grafo<Elemento>::BFS(Grafo<int> g, int fuente, list<int> &recorrido){
+  vector<bool> visitados;
+  visitados.resize(g.getNVertices(),false);
+  queue<int> c;
+  list<int> sucesores;
+  int v,w;
+
+  visitados[fuente] = true;
+  c.push(fuente);
+  while(!c.empty()){
+    v = c.front();
+    c.pop();
+    recorrido.emplace_back(v);
+    sucesores = g.getVecinos(v);
+    while (!sucesores.empty())
+    {
+      w = sucesores.front();
+      if(!visitados[w]){
+        visitados[w] = true;
+        c.push(w);
+      }
+      sucesores.pop_front();
+    }
+  }
+
+  return;
+}
+
+template<typename Elemento>
+list<Elemento> Grafo<Elemento>::BFS(Elemento v){
+  vector<Elemento> map;
+  list<int> recorrido;
+  list<Elemento> recorridoMap;
+  Grafo<int> mapeo = this->setMapeo(&map);
+  int fuente = this->desMap(map,v);
+  this->BFS(mapeo,fuente,recorrido);
+
+  while (!recorrido.empty())
+  {
+    recorridoMap.push_back(map[recorrido.front()]);
+    recorrido.pop_front();
+  }
+  for(auto xd: recorridoMap){
+    cout << xd << " ";
+  }
+  cout << endl;
+  return recorridoMap;
 }
 #endif
