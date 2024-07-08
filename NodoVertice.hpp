@@ -3,15 +3,19 @@
 
 #include <list>
 #include "NodoAdy.hpp"
+
 using namespace std;
 
-template<typename Elemento>
+template<typename  Elemento>
+class NodoAdy;
+template<class  Elemento>
 class NodoVertice
 {
   protected:
     Elemento info;
     NodoVertice<Elemento> *prox;
     NodoAdy<Elemento> *ady;
+    int nArcos;
 
   public:
     NodoVertice();
@@ -21,15 +25,18 @@ class NodoVertice
     Elemento getInfo();
     void setInfo(Elemento e);
 
-    NodoVertice<Elemento> getProx();
+    NodoVertice<Elemento>* getProx();
     void setProx(NodoVertice<Elemento> *next);
 
-    NodoAdy<Elemento> getAdy();
+    NodoAdy<Elemento>* getAdy();
     void setAdy(NodoAdy<Elemento> *arco);
+
+    int getNArcos();
+    void setArcos(int num);
 
 };
 
-template<typename Elemento>
+template<class Elemento>
 NodoVertice<Elemento>::NodoVertice(){
   this->prox = nullptr;
   this->ady = nullptr;
@@ -58,7 +65,7 @@ void NodoVertice<Elemento>::setInfo(Elemento e){
 }
 
 template<typename Elemento>
-NodoVertice<Elemento> NodoVertice<Elemento>::getProx(){
+NodoVertice<Elemento>* NodoVertice<Elemento>::getProx(){
   return this->prox;
 }
 
@@ -68,13 +75,23 @@ void NodoVertice<Elemento>::setProx(NodoVertice<Elemento> *next){
 }
 
 template<typename Elemento>
-NodoAdy<Elemento> NodoVertice<Elemento>::getAdy(){
+NodoAdy<Elemento>* NodoVertice<Elemento>::getAdy(){
   return this->ady;
 }
 
 template<typename Elemento>
 void NodoVertice<Elemento>::setAdy(NodoAdy<Elemento> *arco){
   this->ady = arco;
+}
+
+template<typename Elemento>
+int NodoVertice<Elemento>::getNArcos(){
+  return this->nArcos;
+}
+
+template<typename Elemento>
+void NodoVertice<Elemento>::setArcos(int num){
+  this->nArcos = num;
 }
 
 #endif
