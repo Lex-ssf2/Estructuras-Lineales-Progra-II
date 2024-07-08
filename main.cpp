@@ -2,13 +2,15 @@
 #include <list>
 #include <string>
 #include <sstream>
-#include "Grafo.hpp"
+#include <vector>
+#include "GrafoD.hpp"
 
 using namespace std;
 
 int main() 
 {
-    Grafo<string> test;
+    GrafoD<string> test;
+    vector<string> holaa;
     test.agregarVertice("hola");
     test.agregarVertice("SonGoku");
     test.agregarVertice("hola");
@@ -27,7 +29,11 @@ int main()
     test.agregarArco("queque a","SonGoku");
     test.agregarArco("queque a","oh yeah"); 
     cout << test.getNArcos("hola") << " " << test.getTotalArcos() << " " << test.getNArcos("SonGoku") << " " << test.getNArcos("oh yeah") << " " << test.getNVertices() << " " << test.getNArcos("queque a") <<  endl;
-    test.eliminarVertice("hola");
+    for(auto xd: test.getSucesores("queque a")){
+        cout << xd << " "; 
+    }
+    cout << endl << endl;
+    test.eliminarVertice("queque a");
     cout << test.getNArcos("hola") << " " << test.getTotalArcos() << " " << test.getNArcos("SonGoku") << " " << test.getNArcos("oh yeah") << " " << test.getNVertices() << " " << test.getNArcos("queque a") << endl;
     return 0;
 }

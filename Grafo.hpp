@@ -4,13 +4,14 @@
 #include "NodoVertice.hpp"
 #include "NodoAdy.hpp"
 #include <list>
+#include <vector>
 
 using namespace std;
 
 template<typename Elemento>
 class Grafo
 {
-private:
+protected:
 
   NodoVertice<Elemento> *g;
   int nVertices;
@@ -18,6 +19,8 @@ private:
 
   NodoVertice<Elemento> *getVertice(Elemento v);
   void getVertices(list<Elemento> lista, list<NodoVertice<Elemento>*> salida);
+  Grafo<int> setMapeo(vector<Elemento> *mapeo);
+  int desMap(vector<Elemento> mapeo, Elemento e);
 
 public:
   Grafo();
@@ -42,8 +45,6 @@ public:
   int getNArcos(Elemento v);
   int getTotalArcos();
 
-  /*list<Elemento> getPredecesores(Elemento v);
-  list<Elemento> getSucesores(Elemento v);*/
   list<Elemento> getVecinos(Elemento v);
 };
 
@@ -228,7 +229,7 @@ void Grafo<Elemento>::agregarArco(Elemento v, Elemento w,float c){
 template<typename Elemento>
 void Grafo<Elemento>::setVertice(Elemento v, Elemento w){
   NodoVertice<Elemento> *actual;
-  actual = getVertice(v);
+  actual = this->getVertice(v);
   if(actual == nullptr){
     return;
   }
@@ -239,7 +240,7 @@ template<typename Elemento>
 float Grafo<Elemento>::getPesoArco(Elemento v,Elemento w){
   NodoVertice<Elemento> *actual;
   NodoAdy<Elemento> *arco;
-  actual = getVertice(v);
+  actual = this->getVertice(v);
   if(actual == nullptr){
     return -1.f;
   }
@@ -259,7 +260,7 @@ void Grafo<Elemento>::setPesoArco(Elemento v, Elemento w, float c){
   NodoVertice<Elemento> *actual, *destino;
   NodoAdy<Elemento> *arco;
   bool encontrado = false;
-  actual = getVertice(v);
+  actual = this->getVertice(v);
   if(actual == nullptr){
     return;
   }
@@ -381,7 +382,7 @@ void Grafo<Elemento>::eliminarArco(Elemento v, Elemento w){
     actual->setAdy(AuxA);
     --(this->nArcos);
   }
-  arco = destino->getAdy();
+  arco = actual->getAdy();
   while (arco->getProx() != nullptr && !encontrado)
   {
     if(arco->getProx()->getInfo()->getInfo() == w){
@@ -419,5 +420,52 @@ void Grafo<Elemento>::eliminarArco(Elemento v, Elemento w){
     }
     arco = arco->getProx();
   }
+}
+
+template<typename Elemento>
+Grafo<int> Grafo<Elemento>::setMapeo(vector<Elemento> *mapeo){
+  Grafo<int> salida;
+  NodoVertice<Elemento> *actual;
+  NodoAdy<Elemento> *arco;
+  int i = 0;
+  actual = this->g;
+  while (actual != nullptr)
+  {
+    mapeo->emplace_back(actual->getInfo());
+    salida.agregarVertice(i);
+    ++i;
+    actual = actual->getProx();
+  };
+
+  i = 0;
+  actual = this->g;
+  while (actual != nullptr)
+  {
+    arco = actual->getAdy();
+    while (arco != nullptr)
+    {
+      int conexionMap = this->desMap(*mapeo,arco->getInfo()->getInfo());
+      salida.agregarArco(i,conexionMap,arco->getCosto());
+      arco = arco->getProx();
+    }
+    actual = actual->getProx();
+    ++i;
+  }
+
+  return salida;
+  
+  
+}
+
+template<typename Elemento>
+int Grafo<Elemento>::desMap(vector<Elemento> mapeo, Elemento e){
+  int i = 0, max = mapeo.size();
+  for (i = 0; i < max; ++i)
+  {
+    if(mapeo.at(i) == e){
+      return i;
+    }
+  }
+  return -1;
 }
 #endif
