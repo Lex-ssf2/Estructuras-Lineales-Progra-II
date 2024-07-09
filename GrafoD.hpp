@@ -12,6 +12,7 @@ class GrafoD: public Grafo<Elemento>
 {
 protected:
   GrafoD<int> setMapeo(vector<Elemento> *mapeo);
+  void caminoMasCortoPeso(int start, Grafo<int> g, vector<int> &anterior);
 public:
   void agregarArco(Elemento v, Elemento w,float c = 0.f);
   void eliminarArco(Elemento v, Elemento w);
@@ -20,6 +21,7 @@ public:
   void eliminarVertice(Elemento v);
   list<Elemento> getPredecesores(Elemento v);
   list<Elemento> getSucesores(Elemento v);
+  list<Elemento> caminoMasCortoPeso(Elemento v, Elemento w);
 };
 
 template<typename Elemento>
@@ -228,9 +230,60 @@ GrafoD<int> GrafoD<Elemento>::setMapeo(vector<Elemento> *mapeo){
     actual = actual->getProx();
     ++i;
   }
-
-  cout << salida.getTotalArcos() << endl;
   return salida;
   
+}
+
+template<typename Elemento>
+void GrafoD<Elemento>::caminoMasCortoPeso(int start, Grafo<int> g, vector<int> &anterior){
+  vector<float> acumulado;
+  acumulado.resize(g.getNVertices(),-1);
+  anterior.resize(g.getNVertices(),-1);
+  queue<int> c;
+  list<int> sucesores;
+  float costo;
+  int v,w;
+
+  acumulado[start] = 0;
+  c.push(start);
+  while(!c.empty()){
+    v = c.front();
+    c.pop();
+    sucesores = g.getVecinos(v);
+    while (!sucesores.empty())
+    {
+      w = sucesores.front();
+      costo = g.getPesoArco(v,w) + acumulado[v];
+      if(acumulado[w] == -1 || acumulado[w] > costo){
+        acumulado[w] = costo;
+        anterior[w] = v;
+        c.push(w);
+      }
+      sucesores.pop_front();
+    }
+  }
+}
+
+template<typename Elemento>
+list<Elemento> GrafoD<Elemento>::caminoMasCortoPeso(Elemento v, Elemento w){
+  vector<Elemento> map;
+  vector<int> recorrido;
+  list<Elemento> recorridoMap;
+  Grafo<int> mapeo = this->setMapeo(&map);
+  int fuente = this->desMap(map,v);
+  this->caminoMasCortoPeso(fuente,mapeo,recorrido);
+  int aux = recorrido[this->desMap(map,w)];
+  recorridoMap.push_front(w);
+  while (aux != -1)
+  {
+    recorridoMap.push_front(map[aux]);
+    aux = recorrido[aux];
+  }
+  for(auto xd: recorridoMap){
+    cout << xd << " ";
+  }
+
+  cout << endl;
+  return recorridoMap;
 }
 #endif

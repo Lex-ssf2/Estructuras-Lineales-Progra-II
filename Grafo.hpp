@@ -23,7 +23,9 @@ protected:
   Grafo<int> setMapeo(vector<Elemento> *mapeo);
   int desMap(vector<Elemento> mapeo, Elemento e);
   void DFS(Grafo<int> g, int fuente, list<int> &recorrido, vector<bool> &visitados);
+  void caminoMasCortoPeso(int start, Grafo<int> g, vector<int> &anterior);
   void BFS(Grafo<int> g, int fuente, list<int> &recorrido);
+  void cicloSimple(int start, Grafo<int> g, vector<int> &anterior);
 
 public:
   Grafo();
@@ -51,6 +53,9 @@ public:
   list<Elemento> getVecinos(Elemento v);
   list<Elemento> DFS(Elemento v);
   list<Elemento> BFS(Elemento v);
+
+  list<Elemento> cicloSimple(Elemento v);
+  list<Elemento> caminoMasCortoPeso(Elemento v, Elemento w);
 };
 
 template<typename Elemento>
@@ -510,9 +515,9 @@ list<Elemento> Grafo<Elemento>::DFS(Elemento v){
     recorrido.pop_front();
   }
 
-  for(auto xd: recorridoMap){
+  /*for(auto xd: recorridoMap){
     cout << xd << " ";
-  }
+  }*/
   cout << endl;
   return recorridoMap;
   
@@ -561,9 +566,118 @@ list<Elemento> Grafo<Elemento>::BFS(Elemento v){
     recorridoMap.push_back(map[recorrido.front()]);
     recorrido.pop_front();
   }
+  /*for(auto xd: recorridoMap){
+    cout << xd << " ";
+  }*/
+  cout << endl;
+  return recorridoMap;
+}
+
+template<typename Elemento>
+list<Elemento> Grafo<Elemento>::cicloSimple(Elemento v){
+  vector<Elemento> map;
+  vector<int> recorrido;
+  list<Elemento> recorridoMap;
+  Grafo<int> mapeo = this->setMapeo(&map);
+  int fuente = this->desMap(map,v);
+  this->cicloSimple(fuente,mapeo,recorrido);
+  int aux = recorrido[fuente];
+  recorridoMap.push_front(v);
+  while (aux != fuente)
+  {
+    recorridoMap.push_front(map[aux]);
+    aux = recorrido[aux];
+  }
+  recorridoMap.push_front(v);
+
   for(auto xd: recorridoMap){
     cout << xd << " ";
   }
+
+  cout << endl;
+  return recorridoMap;
+}
+
+template<typename Elemento>
+void Grafo<Elemento>::cicloSimple(int start, Grafo<int> g, vector<int> &anterior){
+  vector<float> acumulado;
+  acumulado.resize(g.getNVertices(),0);
+  anterior.resize(g.getNVertices(),-1);
+  queue<int> c;
+  list<int> sucesores;
+  float costo;
+  int v,w;
+
+  c.push(start);
+  while(!c.empty()){
+    v = c.front();
+    c.pop();
+    sucesores = g.getVecinos(v);
+    while (!sucesores.empty())
+    {
+      w = sucesores.front();
+      costo = g.getPesoArco(v,w) + acumulado[v];
+      if((acumulado[w] == 0 || acumulado[w] > costo || (anterior[w] == anterior[v] && acumulado[w] >= acumulado[v])) && w != anterior[v]){
+        acumulado[w] = costo;
+        anterior[w] = v;
+        c.push(w);
+      }
+      sucesores.pop_front();
+    }
+  }
+}
+
+
+template<typename Elemento>
+void Grafo<Elemento>::caminoMasCortoPeso(int start, Grafo<int> g, vector<int> &anterior){
+  vector<float> acumulado;
+  acumulado.resize(g.getNVertices(),-1);
+  anterior.resize(g.getNVertices(),-1);
+  queue<int> c;
+  list<int> sucesores;
+  float costo;
+  int v,w;
+
+  acumulado[start] = 0;
+  c.push(start);
+  while(!c.empty()){
+    v = c.front();
+    c.pop();
+    sucesores = g.getVecinos(v);
+    while (!sucesores.empty())
+    {
+      w = sucesores.front();
+      costo = g.getPesoArco(v,w) + acumulado[v];
+      if(acumulado[w] == -1 || acumulado[w] > costo){
+        acumulado[w] = costo;
+        anterior[w] = v;
+        c.push(w);
+      }
+      sucesores.pop_front();
+    }
+  }
+}
+
+template<typename Elemento>
+list<Elemento> Grafo<Elemento>::caminoMasCortoPeso(Elemento v, Elemento w){
+  vector<Elemento> map;
+  vector<int> recorrido;
+  list<Elemento> recorridoMap;
+  Grafo<int> mapeo = this->setMapeo(&map);
+  int fuente = this->desMap(map,v);
+  this->caminoMasCortoPeso(fuente,mapeo,recorrido);
+  int aux = recorrido[this->desMap(map,w)];
+  recorridoMap.push_front(w);
+  while (aux != -1)
+  {
+    recorridoMap.push_front(map[aux]);
+    aux = recorrido[aux];
+  }
+
+  for(auto xd: recorridoMap){
+    cout << xd << " ";
+  }
+
   cout << endl;
   return recorridoMap;
 }

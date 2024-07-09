@@ -4,23 +4,25 @@
 #include <sstream>
 #include <vector>
 #include "GrafoD.hpp"
+#include "Grafo.hpp"
 
 using namespace std;
 
 int main() 
 {
-    GrafoD<string> test;
-    test.agregarVertice("Paso 1");
-    test.agregarVertice("Paso 2");
-    test.agregarVertice("Paso 3");
-    test.agregarVertice("Paso 4");
-    test.agregarVertice("Paso 5");
-    test.agregarArco("Paso 1","Paso 3");
-    test.agregarArco("Paso 1","Paso 2");
-    test.agregarArco("Paso 2","Paso 3");
-    test.agregarArco("Paso 3","Paso 5");
-    test.agregarArco("Paso 3","Paso 4");
-    test.agregarArco("Paso 4","Paso 1");
-    test.DFS("Paso 1");
+    Grafo<string> test;
+    test.agregarVertice("A");
+    test.agregarVertice("B");
+    test.agregarVertice("C");
+    test.agregarVertice("D");
+    test.agregarVertice("E");
+    test.agregarArco("A","E",100);
+    test.agregarArco("A","B",1);
+    test.agregarArco("A","C",1);
+    test.agregarArco("B","C",1);
+    test.agregarArco("E","C",1);
+    test.agregarArco("D","A",20);
+    test.agregarArco("E","D",15);
+    test.cicloSimple("A");
     return 0;
 }
