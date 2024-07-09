@@ -24,8 +24,10 @@ protected:
   int desMap(vector<Elemento> mapeo, Elemento e);
   void DFS(Grafo<int> g, int fuente, list<int> &recorrido, vector<bool> &visitados);
   void caminoMasCortoPeso(int start, Grafo<int> g, vector<int> &anterior);
+  void caminoMinPesoBloq(int start, Grafo<int> g, vector<int> &anterior, vector<int> bloqueos);
   void BFS(Grafo<int> g, int fuente, list<int> &recorrido);
   void cicloSimple(int start, Grafo<int> g, vector<int> &anterior);
+  void esBipartito(int inicio,Grafo<int> grafo, bool &resultado);
 
 public:
   Grafo();
@@ -56,6 +58,9 @@ public:
 
   list<Elemento> cicloSimple(Elemento v);
   list<Elemento> caminoMasCortoPeso(Elemento v, Elemento w);
+  list<Elemento> caminoConBloqueoPeso(Elemento v, Elemento w, list<Elemento> bloqueo);
+
+  bool esBipartito();
 };
 
 template<typename Elemento>
@@ -548,7 +553,6 @@ void Grafo<Elemento>::BFS(Grafo<int> g, int fuente, list<int> &recorrido){
       sucesores.pop_front();
     }
   }
-
   return;
 }
 
@@ -680,5 +684,109 @@ list<Elemento> Grafo<Elemento>::caminoMasCortoPeso(Elemento v, Elemento w){
 
   cout << endl;
   return recorridoMap;
+}
+
+template<typename Elemento>
+void Grafo<Elemento>::caminoMinPesoBloq(int start, Grafo<int> g, vector<int> &anterior, vector<int> bloqueos){
+  vector<float> acumulado;
+  acumulado.resize(g.getNVertices(),-1);
+  anterior.resize(g.getNVertices(),-1);
+  queue<int> c;
+  list<int> sucesores;
+  float costo;
+  int v,w;
+
+  acumulado[start] = 0;
+  c.push(start);
+  while(!c.empty()){
+    v = c.front();
+    c.pop();
+    sucesores = g.getVecinos(v);
+    while (!sucesores.empty())
+    {
+       w = sucesores.front();
+      if(bloqueos.at(w) != 1){
+        costo = g.getPesoArco(v,w) + acumulado[v];
+        if(acumulado[w] == -1 || acumulado[w] > costo){
+          acumulado[w] = costo;
+          anterior[w] = v;
+          c.push(w);
+        }
+      }
+      sucesores.pop_front();
+    }
+  }
+};
+
+template<typename Elemento>
+list<Elemento> Grafo<Elemento>::caminoConBloqueoPeso(Elemento v, Elemento w, list<Elemento> bloqueo){
+  vector<Elemento> map;
+  vector<int> recorrido, bloqueoMap;
+  list<Elemento> recorridoMap;
+  Grafo<int> mapeo = this->setMapeo(&map);
+  int fuente = this->desMap(map,v);
+  bloqueoMap.resize(this->getNVertices(),0);
+  while (!bloqueo.empty())
+  {
+    bloqueoMap[this->desMap(map,bloqueo.front())] = 1;
+    bloqueo.pop_front();
+  }
+  
+  this->caminoMinPesoBloq(fuente,mapeo,recorrido,bloqueoMap);
+  int aux = recorrido[this->desMap(map,w)];
+  recorridoMap.push_front(w);
+  while (aux != -1)
+  {
+    recorridoMap.push_front(map[aux]);
+    aux = recorrido[aux];
+  }
+
+  for(auto xd: recorridoMap){
+    cout << xd << " ";
+  }
+  return recorridoMap;
+};
+
+template<typename Elemento>
+bool Grafo<Elemento>::esBipartito(){
+  vector<Elemento> map;
+  bool bicoloreable = true;
+  Grafo<int> mapeo = this->setMapeo(&map);
+  int fuente = this->desMap(map,this->g->getInfo());
+  this->esBipartito(fuente,mapeo,bicoloreable);
+  return bicoloreable;
+}
+
+template<typename Elemento>
+void Grafo<Elemento>::esBipartito(int inicio,Grafo<int> grafo, bool &resultado){
+  vector<int> colores;
+  colores.resize(grafo.getNVertices(),-1);
+  queue<int> c;
+  list<int> sucesores;
+  int v,w;
+  resultado = true;
+  colores[inicio] = 0;
+  c.push(inicio);
+  while(!c.empty() && resultado){
+    v = c.front();
+    c.pop();
+
+    sucesores = grafo.getVecinos(v);
+    while (!sucesores.empty() && resultado)
+    {
+      w = sucesores.front();
+      if(colores[w] == -1){
+        colores[w] = (colores[v] + 1) % 2;
+        c.push(w);
+      }
+      if(colores[w] == colores[v]){
+        resultado = false;
+        return;
+      }
+
+      sucesores.pop_front();
+    }
+  }
+  return;
 }
 #endif
