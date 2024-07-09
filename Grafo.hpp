@@ -28,6 +28,7 @@ protected:
   void BFS(Grafo<int> g, int fuente, list<int> &recorrido);
   void cicloSimple(int start, Grafo<int> g, vector<int> &anterior);
   void esBipartito(int inicio,Grafo<int> grafo, bool &resultado);
+  void esMulticoloreable(int inicio, int nColoresGrafo, Grafo<int> grafo, bool &resultado);
 
 public:
   Grafo();
@@ -61,6 +62,7 @@ public:
   list<Elemento> caminoConBloqueoPeso(Elemento v, Elemento w, list<Elemento> bloqueo);
 
   bool esBipartito();
+  bool esMulticoloreable(int nColores = 4);
 };
 
 template<typename Elemento>
@@ -783,8 +785,66 @@ void Grafo<Elemento>::esBipartito(int inicio,Grafo<int> grafo, bool &resultado){
         resultado = false;
         return;
       }
-
       sucesores.pop_front();
+    }
+  }
+  return;
+}
+
+template<typename Elemento>
+bool Grafo<Elemento>::esMulticoloreable(int nColores){
+  vector<Elemento> map;
+  bool multicoloreable = true;
+  Grafo<int> mapeo = this->setMapeo(&map);
+  int fuente = this->desMap(map,this->g->getInfo());
+  this->esMulticoloreable(fuente,nColores,mapeo,multicoloreable);
+  return multicoloreable;
+}
+
+template<typename Elemento>
+void Grafo<Elemento>::esMulticoloreable(int inicio, int nColoresGrafo, Grafo<int> grafo, bool &resultado){
+  vector<int> colores;
+  vector<bool> coloresDisponibles, visitados;
+  colores.resize(grafo.getNVertices(),-1);
+  coloresDisponibles.resize(grafo.getNVertices(),true);
+  visitados.resize(grafo.getNVertices(),false);
+  queue<int> c;
+  list<int> sucesores;
+  int v,w,i;
+  bool encontrado = false;
+  resultado = true;
+  colores[inicio] = 0;
+  c.push(inicio);
+  while(!c.empty() && resultado){
+    v = c.front();
+    c.pop();
+
+    sucesores = grafo.getVecinos(v);
+    while (!sucesores.empty() && resultado)
+    {
+      w = sucesores.front();
+      visitados[w] = true;
+      if(colores[w] != -1){
+        coloresDisponibles[colores[w]] = false;
+      }
+      if(!visitados[v]){
+        c.push(w);
+      }   
+      sucesores.pop_front();
+    }
+    i = 0;
+    encontrado = false;
+    while (i < nColoresGrafo && !encontrado){
+      if(coloresDisponibles[i]){
+        colores[w] = i;
+        encontrado = true;
+      }
+      ++i;
+    }
+    visitados[v] = true;
+    if(!encontrado){
+      resultado = false;
+      return;
     }
   }
   return;

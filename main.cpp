@@ -17,13 +17,13 @@ int main()
     test.agregarVertice("C");
     test.agregarVertice("D");
     test.agregarVertice("E");
-    //test.agregarArco("A","E",100);
+    test.agregarArco("A","E",100);
     test.agregarArco("A","B",1);
-    //test.agregarArco("A","C",5);
+    test.agregarArco("A","C",5);
     test.agregarArco("B","C",1);
-    //test.agregarArco("E","C",1);
+    test.agregarArco("E","C",1);
     test.agregarArco("D","A",20);
     test.agregarArco("E","D",15);
-    cout << test.esBipartito();
+    cout << test.esMulticoloreable(4);
     return 0;
 }
