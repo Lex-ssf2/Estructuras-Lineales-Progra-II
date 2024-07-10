@@ -29,6 +29,7 @@ protected:
   void cicloSimple(int start, Grafo<int> g, vector<int> &anterior);
   void esBipartito(int inicio,Grafo<int> grafo, bool &resultado);
   void esMulticoloreable(int inicio, int nColoresGrafo, Grafo<int> grafo, bool &resultado);
+  void arcoMinimo(list<int> activos, int &v, int &w, float &peso, vector<bool> visitados, bool &band);
 
 public:
   Grafo();
@@ -61,8 +62,13 @@ public:
   list<Elemento> caminoMasCortoPeso(Elemento v, Elemento w);
   list<Elemento> caminoConBloqueoPeso(Elemento v, Elemento w, list<Elemento> bloqueo);
 
+  int arbolExpandidoMinimo();
+  void arbolExpandidoMinimo(Grafo<int> &g, float &peso);
+
   bool esBipartito();
   bool esMulticoloreable(int nColores = 4);
+  bool esConexo();
+  list<list<Elemento>> getPuentes();
 };
 
 template<typename Elemento>
@@ -382,7 +388,132 @@ void Grafo<Elemento>::eliminarVertice(Elemento v){
 
 template<typename Elemento>
 void Grafo<Elemento>::eliminarArco(Elemento v, Elemento w){
-  NodoVertice<Elemento> *actual, *destino;
+    NodoVertice<Elemento> *actual, *objetivo = NULL;
+    NodoAdy<Elemento> *auxAct, *borrar;
+    if(v != w)
+    {
+        actual = this->g;
+        while((actual->getInfo() != v)&&(actual->getProx() != NULL))
+        {
+            if(actual->getInfo() == w)
+            {
+                objetivo = actual;
+            }
+            actual = actual->getProx();
+        }
+        if(actual->getInfo() != v)
+        {
+            return;
+        }
+
+        if(objetivo == NULL)
+        {
+            objetivo = actual->getProx();
+            if(objetivo == NULL)
+            {
+                return;
+            }
+            while((objetivo->getInfo() != w)&&(objetivo->getProx() != NULL))
+            {
+                objetivo = objetivo->getProx();
+            }
+            if(objetivo->getInfo() != w)
+            {
+                return;
+            }
+        }
+        
+        if(actual->getAdy() == NULL)
+        {
+            return;
+        }
+        else
+        {
+            if(actual->getAdy()->getInfo() == objetivo)
+            {
+                borrar = actual->getAdy();
+                actual->setAdy(borrar->getProx());
+                delete borrar;
+            }
+            else
+            {
+                auxAct = actual->getAdy();
+                borrar = auxAct->getProx();
+                while(borrar->getInfo() != objetivo && borrar != NULL)
+                {
+                    auxAct = borrar;
+                    borrar = borrar->getProx();
+                }
+                if(borrar != NULL)
+                {
+                    auxAct->setProx(borrar->getProx());
+                    delete borrar;
+                }
+            }
+        }
+        if(objetivo->getAdy() == NULL)
+        {
+            return;
+        }
+        else
+        {
+            if(objetivo->getAdy()->getInfo() == actual)
+            {
+                borrar = objetivo->getAdy();
+                objetivo->setAdy(borrar->getProx());
+                delete borrar;
+            }
+            else
+            {
+                auxAct = objetivo->getAdy();
+                borrar = auxAct->getProx();
+                while(borrar->getInfo() != actual && borrar != NULL)
+                {
+                    auxAct = borrar;
+                    borrar = borrar->getProx();
+                }
+                if(borrar != NULL)
+                {
+                    auxAct->setProx(borrar->getProx());
+                    delete borrar;
+                }
+            }
+        }
+    }
+    /*NodoVertice<Elemento> *inicio = this->g;
+    NodoAdy<Elemento> *ady, *objetivo;
+
+    if(this->existeArco(v,w)){
+        //ENCONTRAR VERTICE V
+        while((inicio!=nullptr) && (inicio->getInfo() != v)){
+            inicio = inicio->getProx();
+        }
+        
+        //RECORRER ARCOS DE V HASTA ENCONTRAR ARCO CON W
+        ady = inicio->getAdy();
+        if(ady != nullptr){
+            if(ady->getInfo()->getInfo() == w){
+                inicio->setAdy(ady->getProx());
+                inicio->setArcos(inicio->getNArcos() - 1);
+                delete ady;
+                this->nArcos = this->nArcos - 1;
+            }else{
+                if (ady->getProx() != nullptr){
+                    while (ady->getProx()->getInfo()->getInfo() != w){
+                        ady=ady->getProx();
+                    }
+                    objetivo = ady->getProx();
+                    ady->setProx(objetivo->getProx());
+                    objetivo->setProx(nullptr);
+                    inicio->setArcos(inicio->getNArcos() - 1);
+                    delete objetivo;
+                    this->nArcos = this->nArcos - 1;
+
+                }
+            }
+        }
+    }  */
+  /*NodoVertice<Elemento> *actual, *destino;
   NodoAdy<Elemento> *arco, *AuxA;
   bool encontrado = false;
   actual = this->getVertice(v);
@@ -392,13 +523,13 @@ void Grafo<Elemento>::eliminarArco(Elemento v, Elemento w){
   arco = actual->getAdy();
   if(arco->getInfo()->getInfo() == w){
     actual->setArcos(actual->getNArcos() - 1);
+    actual->setAdy(arco->getProx());
     destino = arco->getInfo();
-    AuxA = arco->getProx();
     encontrado = true;
-    delete arco;
-    actual->setAdy(AuxA);
+    //delete arco;
     --(this->nArcos);
   }
+
   arco = actual->getAdy();
   while (arco->getProx() != nullptr && !encontrado)
   {
@@ -407,11 +538,12 @@ void Grafo<Elemento>::eliminarArco(Elemento v, Elemento w){
       AuxA = arco->getProx();
       destino = AuxA->getInfo();
       arco->setProx(AuxA->getProx());
-      delete AuxA;
+      //delete AuxA;
       encontrado = true;
       --(this->nArcos);
+    }else{
+      arco = arco->getProx();
     }
-    arco = arco->getProx();
   }
 
 
@@ -434,9 +566,10 @@ void Grafo<Elemento>::eliminarArco(Elemento v, Elemento w){
       delete AuxA;
       --(this->nArcos);
       return;
+    }else{
+      arco = arco->getProx();
     }
-    arco = arco->getProx();
-  }
+  }*/
 }
 
 template<typename Elemento>
@@ -805,12 +938,15 @@ template<typename Elemento>
 void Grafo<Elemento>::esMulticoloreable(int inicio, int nColoresGrafo, Grafo<int> grafo, bool &resultado){
   vector<int> colores;
   vector<bool> coloresDisponibles, visitados;
-  colores.resize(grafo.getNVertices(),-1);
-  coloresDisponibles.resize(grafo.getNVertices(),true);
-  visitados.resize(grafo.getNVertices(),false);
+  int i;
+  for(i=0;i<this->getNVertices();i++){
+      colores.emplace_back(-1);
+      coloresDisponibles.emplace_back(true);
+      visitados.emplace_back(false);
+  }
   queue<int> c;
   list<int> sucesores;
-  int v,w,i;
+  int v,w;
   bool encontrado = false;
   resultado = true;
   colores[inicio] = 0;
@@ -848,5 +984,133 @@ void Grafo<Elemento>::esMulticoloreable(int inicio, int nColoresGrafo, Grafo<int
     }
   }
   return;
+}
+
+template<typename Elemento>
+void Grafo<Elemento>::arbolExpandidoMinimo(Grafo<int> &g, float &peso){
+  vector<bool> visitados;
+  int i,v,w;
+  bool fin, band=false;
+  list<int> vertices, activos;
+  float p;
+
+  for(i=0;i<this->getNVertices();i++){
+      g.agregarVertice(i);
+      visitados.emplace_back(false);
+  }
+
+  activos.push_back(0);
+  visitados.at(0) = true;
+  fin = false;
+  p=0;
+  peso=0;
+  while(!fin){
+    this->arcoMinimo(activos,v,w,p,visitados, band);
+    g.agregarArco(v,w, p);
+    peso = peso + p;
+    activos.push_back(w);
+    visitados.at(w) = true;
+
+    fin = true;
+    if(!band){
+        for ( i = 0; i< this->getNVertices(); i++){
+            fin = fin && visitados.at(i);
+        }
+    }else{
+        peso = 0;
+    }
+
+  }
+}
+
+template<typename Elemento>
+void Grafo<Elemento>::arcoMinimo(list<int> activos, int &v, int &w, float &peso, vector<bool> visitados, bool &band){
+  int actual, act;
+  list<int> vecinos;
+  float pesoArco;
+  bool prim=false;
+
+  while(!activos.empty()){
+    actual = activos.front();
+    vecinos = this->getVecinos(actual);
+    while(!vecinos.empty()){
+      act = vecinos.front();
+      if (!visitados.at(act)){
+        pesoArco = this->getPesoArco(actual, act);
+        if((pesoArco<peso) || (!prim)){
+            peso = pesoArco;
+            v = actual;
+            w = act;
+            prim=true;
+        }
+      }
+      vecinos.pop_front();
+    }
+    activos.pop_front();
+  }
+  //Si no se pudo procesar ni un solo arco, se activa la bandera band para finalizar el proceso
+  if(!prim){
+      band = true;
+  }
+}
+
+template<typename Elemento>
+int Grafo<Elemento>::arbolExpandidoMinimo(){
+  vector<Elemento> map;
+  bool multicoloreable = true;
+  Grafo<int> mapeo = this->setMapeo(&map), arbolMinimo;
+  float peso;
+  mapeo.arbolExpandidoMinimo(arbolMinimo,peso);
+  return peso;
+}
+
+template <typename Elemento>
+bool Grafo<Elemento>::esConexo(){
+  Elemento fuente = this->g->getInfo();
+  list<Elemento> salida;
+  salida = this->BFS(fuente);
+    return salida.size() == this->getNVertices();
+}
+
+template <typename Elemento>
+list<list<Elemento>> Grafo<Elemento>::getPuentes(){
+  list<list<Elemento>> arcosPuente;
+  list<Elemento> arco;
+  list<int> vecinos;
+  float peso;
+  int i,w;
+  vector<Elemento> m;
+  Grafo<int> aux = this->setMapeo(&m);//MAPEAR GRAFO O(N+M)
+
+  for (i=0; i<this->getNVertices(); i++){ //RECORRER VERTICES 
+      vecinos = aux.getVecinos(i);
+      //RECORRER ARCOS
+      /*if(vecinos.size() > 2){
+        vecinos.pop_front();
+        continue;
+      }*/
+      while(!vecinos.empty()){
+          w = vecinos.front();
+          peso = aux.getPesoArco(i,w);
+          //ELIMINAR ARCO
+          cout << aux.existeArco(i,w) << " ";
+          aux.eliminarArco(i,w);
+          //VERIFICAR QUE EL GRAFO SIGA CONEXO (Si no es conexo, el arco es un arco puente)
+          /*if((!aux.esConexo()) && (i<w)){
+              //Agregar arco a la lista de arcos puente
+              cout << i << " ";
+              arco.clear();
+              arco.push_back(m.at(i));
+              arco.push_back(m.at(w));
+              arcosPuente.push_back(arco);
+              cout << i << " ";
+              
+          }*/
+          //VOLVER A AGREGAR EL ARCO ELIMINADO
+          aux.agregarArco(i,w,peso);
+          vecinos.pop_front();
+      }
+  }
+  return arcosPuente;
 }
 #endif

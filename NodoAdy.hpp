@@ -19,7 +19,7 @@ class NodoAdy
   public:
     NodoAdy();
     NodoAdy(NodoVertice<Elemento> *v, float c = 0,NodoAdy<Elemento> *p = nullptr);
-    ~NodoAdy();
+    virtual ~NodoAdy();
 
     NodoVertice<Elemento>* getInfo();
     void setInfo(NodoVertice<Elemento> *v);

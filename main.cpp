@@ -17,13 +17,27 @@ int main()
     test.agregarVertice("C");
     test.agregarVertice("D");
     test.agregarVertice("E");
-    test.agregarArco("A","E",100);
-    test.agregarArco("A","B",1);
-    test.agregarArco("A","C",5);
-    test.agregarArco("B","C",1);
-    test.agregarArco("E","C",1);
-    test.agregarArco("D","A",20);
-    test.agregarArco("E","D",15);
-    cout << test.esMulticoloreable(4);
+    test.agregarArco("A","B",2);
+    test.agregarArco("A","C",7);
+    test.agregarArco("A","D",2);
+    test.agregarArco("A","E",6);
+    test.agregarArco("B","C",8);
+    test.agregarArco("C","D",9);
+    //test.agregarArco("B","E",1);
+    test.agregarArco("D","E",2);
+    
+    test.eliminarArco("A","B");
+    test.eliminarArco("A","C");
+    test.eliminarArco("A","D");
+    test.eliminarArco("A","E");
+    test.agregarArco("A","B",2);
+    test.getPuentes();
+
+    /*for(auto xd : test.getPuentes()){
+        for(auto que : xd){
+            cout << que << " ";
+        }
+        cout << endl;
+    }*/
     return 0;
 }
